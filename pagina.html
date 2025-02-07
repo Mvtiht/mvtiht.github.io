@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregunta de San Valentín</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos básicos */
+        body {
+            font-family: 'Noto Sans JP', sans-serif; /* Cambiar la fuente a una que soporte japonés */
+            background-color: #1e1e2e; /* Color de fondo principal */
+            color: #F2D7B6; /* Color de las letras */
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-top: 100px;
+            color: #cba6f7; /* Color de las letras de la pregunta */
+            transition: opacity 0.5s ease; /* Transición para la desaparición */
+        }
+
+        .buttons {
+            margin-top: 30px;
+            transition: opacity 0.5s ease; /* Transición para la desaparición */
+        }
+
+        button {
+            background-color: #1e1e2e; /* Color del fondo del botón igual al del fondo */
+            color: #cba6f7; /* Color de las letras de los botones */
+            border: 2px solid #cba6f7; /* Borde del botón en color de las letras */
+            padding: 15px 30px;
+            font-size: 1.2em;
+            margin: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s; /* Transición suave para el hover */
+        }
+
+        button:hover {
+            background-color: #cba6f7; /* Fondo del botón cuando se pasa el cursor */
+            color: #1e1e2e; /* Cambiar el color del texto al color de fondo cuando se pasa el cursor */
+            transform: scale(1.1); /* Agrandar el botón al pasar el cursor */
+        }
+
+        .image {
+            margin-top: 30px;
+            max-width: 50%; /* Hacer la imagen más pequeña */
+            height: auto;
+            opacity: 0; /* La imagen comienza oculta */
+            transition: opacity 1s ease, transform 1s ease; /* Transición para mostrarla y moverla */
+            border-radius: 15px; /* Redondear las esquinas de las imágenes */
+        }
+
+        .image.visible {
+            opacity: 1; /* Mostrar la imagen cuando se hace visible */
+            transform: translateY(50px) scale(0.5); /* Mover la imagen hacia abajo y hacerla más pequeña */
+        }
+
+        .text-message {
+            font-size: 1.5em;
+            color: #cba6f7; /* Asegurarse de que el color del texto sea el mismo que el de la pregunta */
+            opacity: 0;
+            margin-top: 20px;
+            transition: opacity 1s ease;
+        }
+
+        .text-message.visible {
+            opacity: 1; /* Hacer el mensaje visible */
+        }
+
+        .content {
+            transition: opacity 1s ease;
+        }
+
+        /* Estilo para la flecha */
+        .back-arrow {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.5em;
+            color: #cba6f7; /* Color de la flecha igual que la pregunta */
+            cursor: pointer;
+            opacity: 0; /* Comienza oculta */
+            transition: opacity 0.5s ease, transform 0.3s ease;
+        }
+
+        .back-arrow.visible {
+            opacity: 1; /* Hacer visible la flecha */
+            transform: translateY(0); /* Asegurarse que la flecha no se mueva */
+        }
+
+        .extra-message {
+            font-size: 1.2em;
+            color: #cba6f7;
+            opacity: 0;
+            margin-top: 30px;
+            transition: opacity 1s ease;
+        }
+
+        .extra-message.visible {
+            opacity: 1;
+        }
+
+        /* Estilo para el texto en la esquina inferior izquierda */
+        #typingText {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            font-size: 1.2em;
+            color: #cba6f7;
+            opacity: 0; /* Inicialmente invisible */
+            white-space: nowrap; /* Para evitar que el texto se rompa en varias líneas */
+            font-family: 'Courier New', Courier, monospace; /* Estilo monoespaciado para efecto de escritura */
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semi-transparente */
+            padding: 10px 20px; /* Un poco de relleno */
+            border-radius: 15px; /* Bordes redondeados */
+        }
+
+        /* Estilo para el texto en la esquina superior izquierda */
+        .corner-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            color: #1DB954; /* Color de Spotify */
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .corner-link a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .corner-link .text {
+            margin-right: 10px;
+        }
+
+        .spotify-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Audio que se reproduce en la página (canción principal) -->
+    <audio id="audioPlayer" loop>
+        <source src="audios/cancion.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+    <!-- Audio para la opción "No" -->
+    <audio id="noAudio">
+        <source src="audios/no.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+    <div class="content">
+        <h1>Rata, ¿quieres ser mi San Valentín?</h1>
+
+        <div class="buttons">
+            <button onclick="showImage('si')">Sí</button>
+            <button onclick="showImage('no')">No</button>
+        </div>
+    </div>
+
+    <div id="imageContainer"></div>
+
+    <!-- Flecha de regreso -->
+    <div class="back-arrow" onclick="goBack()">←</div>
+
+    <!-- Texto con efecto de escritura -->
+    <div id="typingText"></div>
+
+    <!-- Enlace a Spotify con texto y logo -->
+    <div class="corner-link">
+        <a href="https://open.spotify.com/playlist/0QwN9CfmuhOETbPjwC56um?si=ahq-2-aoSlKoyLGbswic9Q&pi=fb4usUB5Q9GFh" target="_blank">
+            <span class="text">シティ・ポップ - Playlist</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" alt="Spotify Logo" class="spotify-logo">
+        </a>
+    </div>
+
+    <script>
+        // Control del audio
+        const audioPlayer = document.getElementById('audioPlayer');
+        const noAudio = document.getElementById('noAudio');
+
+        // Reproducir la canción cuando la página cargue
+        audioPlayer.play();
+
+        // Función para mostrar el texto en la esquina inferior izquierda
+        function typeWriter(text, elementId, speed) {
+            let i = 0;
+            const element = document.getElementById(elementId);
+            element.style.opacity = 1;  // Hacerlo visible
+            function typing() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typing, speed);
+                }
+            }
+            typing();
+        }
+
+        // Llamar a la función para que aparezca el texto con efecto de escritura
+        window.onload = function() {
+            typeWriter("ラブミー - RealestK", "typingText", 100);
+        };
+
+        // Contador para los clics en la imagen de "Sí"
+        let clickCount = 0;
+        let extraMessageShown = false;  // Nueva variable para asegurar que solo se muestre una vez el mensaje extra
+
+        function showImage(response) {
+            const content = document.querySelector(".content");
+            const imageContainer = document.getElementById("imageContainer");
+            const h1 = document.querySelector("h1");
+            const buttons = document.querySelector(".buttons");
+            const backArrow = document.querySelector(".back-arrow");
+            const typingText = document.getElementById("typingText");  // Obtener el texto de la esquina
+
+            // Hacer desaparecer la pregunta y los botones con una transición
+            content.style.opacity = 0;
+            setTimeout(() => {
+                h1.style.display = "none";
+                buttons.style.display = "none";
+            }, 500); // Esperar 0.5s para que la transición se complete
+
+            // Crear el texto y la imagen de acuerdo a la respuesta
+            let textMessage = "";
+            let imgSrc = "";
+            
+            if (response === 'si') {
+                textMessage = "Te amo mucho preciosa, ojalá pasemos muchos más 14 de febrero juntos";
+                imgSrc = 'images/si.png'; // Usar la imagen para "Sí"
+                audioPlayer.play(); // Reproducir el audio principal
+                noAudio.pause(); // Asegurarnos de que el audio "No" esté pausado
+            } else {
+                textMessage = "Como que no"; // Mensaje diferente para "No"
+                imgSrc = 'images/no.png'; // Usar una imagen diferente para "No"
+                audioPlayer.pause(); // Detener la canción principal
+                noAudio.play(); // Reproducir el audio "No"
+                
+                // Ocultar el texto de la esquina inferior izquierda al elegir "No"
+                typingText.style.opacity = 0;
+            }
+
+            // Crear el texto adicional
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("text-message");
+            messageElement.textContent = textMessage;
+            imageContainer.appendChild(messageElement);
+
+            // Crear la imagen
+            const img = document.createElement('img');
+            img.classList.add('image');
+            img.src = imgSrc; // Usar la imagen correspondiente
+            imageContainer.appendChild(img);
+
+            // Activar las transiciones de la imagen y el texto
+            setTimeout(() => {
+                img.classList.add("visible");
+                messageElement.classList.add("visible");
+                backArrow.classList.add("visible"); // Mostrar la flecha
+            }, 100); // Pequeña espera para que las transiciones empiecen después de agregar los elementos
+
+            // Evento para cuando se presiona dos veces la imagen
+            img.addEventListener('click', () => {
+                clickCount++;
+                if (clickCount === 2 && !extraMessageShown) {
+                    const extraMessage = document.createElement("div");
+                    extraMessage.classList.add("extra-message");
+                    extraMessage.textContent = "Te amo mucho preciosa, eres la mejor mujer que he conocido. Quiero estar todo el tiempo contigo, poder darte besitos y muchos abrazos. De verdad que te amo mucho, me haces muy feliz estando conmigo. Ahora con esto sabes por qué me demoré en pedírtelo. ❤️";
+                    imageContainer.appendChild(extraMessage);
+                    setTimeout(() => {
+                        extraMessage.classList.add("visible");
+                    }, 100);
+                    extraMessageShown = true;  // Marcar que el mensaje ha sido mostrado
+                    clickCount = 0; // Resetear el contador
+                }
+            });
+        }
+
+        function goBack() {
+            const content = document.querySelector(".content");
+            const h1 = document.querySelector("h1");
+            const buttons = document.querySelector(".buttons");
+            const imageContainer = document.getElementById("imageContainer");
+            const backArrow = document.querySelector(".back-arrow");
+            const typingText = document.getElementById("typingText");  // Obtener el texto de la esquina
+
+            // Volver a mostrar la pregunta y los botones
+            h1.style.display = "block";
+            buttons.style.display = "block";
+            content.style.opacity = 1;
+
+            // Limpiar la imagen y el texto
+            imageContainer.innerHTML = '';
+
+            // Hacer desaparecer la flecha
+            backArrow.classList.remove("visible");
+
+            // Reanudar la canción cuando se regresa a la pregunta
+            audioPlayer.play();
+
+            // Resetear la variable para permitir mostrar el mensaje extra de nuevo en otro ciclo
+            extraMessageShown = false;
+
+            // Volver a mostrar el texto en la esquina si no se seleccionó "No"
+            typingText.style.opacity = 1;
+        }
+    </script>
+</body>
+</html>
